@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Tab App</title>
+    <script src="https://kit.fontawesome.com/29a00776d0.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-image: url(background.jpg);
+            background-size: 100% 100%;
+           overflow: hidden;
+        }
+
+        h1{
+            position:relative;
+            left:36%;
+            top:10px;
+            bottom:10px;
+            font-size: 3em;
+            color: rgb(173, 66, 132);
+            text-shadow: 2px 2px 3px black;
+
+        }
+
+        form {
+            text-align: center;
+        }
+
+        form button {
+            background-color: rgb(173, 66, 132);;
+            border: 2px solid white;
+            color: white;
+            outline: none;
+            padding: 10px 15px;
+        }
+
+        form input {
+            padding: 10px 15px;
+            border: 2px solid blueviolet;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            position: relative;
+            background-color: rgb(138, 43, 226, .4);
+            color: white;
+            padding: 20px 30px;
+            margin-bottom: 10px;
+            transition: 0.5s;
+        }
+
+        li:hover {
+            box-shadow: 0px 0px 10px 0px rgb(212, 212, 212);
+        }
+
+        .small-container {
+            max-width: 600px;
+            margin: 0px auto;
+        }
+
+        .close {
+            color: red;
+            background: whitesmoke;
+            padding: 5px 10px;
+            cursor: pointer;
+            right: 10px;
+            position: absolute;
+
+        }
+
+        .edit {
+            color: green;
+            background: whitesmoke;
+            padding: 5px 10px;
+            cursor: pointer;
+            right: 70px;
+            position: absolute;
+        }
+
+        .clearall {
+            padding: 10px;
+        }
+
+        strong {
+            position:relative;
+            left:40%;
+            line-height: 3em;
+            color: white;
+            font-size: 1.5em;
+            text-shadow: 2px 2px 3px black;
+            text-decoration: underline;
+        }
+text{
+    color: white;
+    font-size: 1.3em;
+    text-shadow: 2px 2px 3px black;
+    text-transform: capitalize;
+}
+        span {
+            margin-left: 70px;
+            margin-right: 20px;
+            font-size: 1.3em;
+            color: rgb(173, 66, 132);
+            text-shadow: 2px 2px 3px black;
+            font-weight: bolder;
+            text-decoration: underline;
+        }
+        .alert{
+            position: relative;
+            left:25%;
+            width:50%;
+            background-color: rgb(173, 66, 132, .5);
+            color: white;
+            padding: 20px 30px;
+            margin-bottom: 10px;
+            transition: 0.5s;
+        }
+        #rang{
+            position:absolute;
+            left:85%;
+            top:10px;
+            color:white;
+            text-shadow: 2px 2px 2px 5px black;
+            font-size: 1.7em;
+            animation:rangs .1s linear infinite;
+        }
+        .up{
+            color: blue;
+            background: whitesmoke;
+            padding: 5px 10px;
+            cursor: pointer;
+            right: 130px;
+            position: absolute;
+        }
+        .down{
+            color: blue;
+            background: whitesmoke;
+            padding: 5px 10px;
+            cursor: pointer;
+            right: 190px;
+            position: absolute;
+        }
+        @keyframes rangs{
+            0%{
+                transform: rotate(8deg);
+            }
+            100%{
+                transform: rotate(-8deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="alert"></div>
+    <h1>Meeting Reminder</h1>
+    <form>
+        <input id="inp1" type="text" placeholder="Name*">
+        <input type="time" id="inp2" placeholder="Timming*">
+        <!-- <input type="text" id="inp2" placeholder="Timming*"> -->
+        <input type="date" name="" id="inp3" placeholder="Date for Meeting*">
+        <!-- <input  id="inp3" type="text" placeholder="Date for Meeting*"> -->
+        <button>Submit</button>
+        <button type="button" onclick="changeValue(event)">Update</button>
+    </form>
+    <ul></ul>
+    <audio id="sounds" src="alarm_sound.mp3"></audio>
+    <script>
+        var alert = document.getElementById("alert")
+        var audio = document.getElementById("sounds")
+        const form = document.querySelector('form')
+        const ul = document.querySelector('ul')
+        const inp1 = document.getElementById('inp1')
+        const inp2 = document.getElementById('inp2')
+        const inp3 = document.getElementById('inp3')
+        let arry = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
+        localStorage.setItem('items', JSON.stringify(arry))
+        const data = JSON.parse(localStorage.getItem('items'))
+
+        form.addEventListener('submit', function (e) {
+            if(inp1.value=="" || inp2.value=="" || inp3.value==""){
+alert("Please fill inputs")
+            }
+            else{
+                e.preventDefault();
+            let object = { name: `${inp1.value}`, time: `${inp2.value}`, date: `${inp3.value}` }
+            arry.push(object);
+            localStorage.setItem('items', JSON.stringify(arry))
+            listMaker(object);
+            }
+        });
+
+        const listMaker=(text,index)=>{
+const li=document.createElement('li')
+li.setAttribute("data-index", index)
+const btnEdit=document.createElement('button')
+btnEdit.innerHTML=`<i class="fas fa-edit"></i>`
+btnEdit.classList.add('edit')
+btnEdit.onclick=function(){
+pickOldValue(text,index);
+ }
+const btnDelete=document.createElement('button')
+btnDelete.innerHTML=`<i class="fas fa-trash"></i>`
+btnDelete.classList.add('close')
+btnDelete.onclick=function(){
+    deleteData(index);
+}
+var name=text.name;
+var time=text.time;
+var date=text.date;
+li.innerHTML=`<strong>Meeting Details</strong><br/><span>Name:</span><text>${name} </text><span>Time:</span><span style="color:white"><text>${time}</text></span><span>Date:</span><text>${date}</text>`;
+li.setAttribute("data-index", index)
+var btnUp= document.createElement('button');
+btnUp.innerHTML=`<i class="fas fa-arrow-up"></i>`;
+btnUp.classList.add('up')
+btnUp.onclick=function(){
+pushUp(index);
+}
+var btnDown=document.createElement('button');
+btnDown.innerHTML=`<i class="fas fa-arrow-down"></i>`;
+btnDown.classList.add('down')
+btnDown.onclick=function(){
+pushDown(index);
+}
+li.appendChild(btnUp);
+li.appendChild(btnDown);
+li.appendChild(btnDelete)
+li.appendChild(btnEdit)
+
+ul.appendChild(li)
+ }
+
+ 
+data.forEach((item,index)=>{
+listMaker(item,index)
+});
+
+function deleteData(i){
+    arry.splice(i,1)
+    localStorage.setItem('items', JSON.stringify(arry))
+    let removeLi=document.querySelector(`li[data-index="${i}"]`)
+    ul.removeChild(removeLi);
+    audio.pause();
+    alert.style.display="none";
+    ul.innerHTML = ""
+    arry.forEach((item,index) => {
+   listMaker(item,index)
+    });
+
+}
+
+
+let indexOfValueToBeChanged=-1;
+function changeValue(e){
+if(indexOfValueToBeChanged===-1){
+    alert(`press "Enter" key to save NewEntry`)
+    return;
+}
+    else{
+    let newValue1=inp1.value;
+    let newValue2=inp2.value;
+    let newValue3=inp3.value;
+    arry[indexOfValueToBeChanged].name=newValue1;
+    arry[indexOfValueToBeChanged].time=newValue2;
+    arry[indexOfValueToBeChanged].date=newValue3;
+localStorage.setItem("items", JSON.stringify(arry));
+ul.innerHTML="";
+arry.forEach((item,index)=>{
+listMaker(item,index); 
+});
+}
+indexOfValueToBeChanged=-1;
+inp1.value="";
+inp2.value="";
+inp3.value="";
+}
+
+function pickOldValue(value, i){
+    inp1.value=value.name;
+    inp2.value=value.time;
+    inp3.value=value.date;
+    indexOfValueToBeChanged=i;
+}
+
+
+
+
+        let alarming = ((pick) => {
+            let now = new Date();
+            let hrs = now.getHours();
+            let min = now.getMinutes();
+            if (min >= 0 && min < 10) {
+                min = '0' + min;
+            }
+            if (hrs >= 0 && hrs < 10) {
+                hrs = '0' + hrs;
+            }
+            const time = `${hrs}:${min}`
+            console.log(time)
+            console.log(pick, "stored")
+            if (time == pick) {
+
+                audio.play()
+                alert.innerHTML=`GET READY FOR THE M EETING......<br/>Current time is<strong> ${time}</strong><i class="fas fa-bell" id="rang"></i>`
+                alert.classList.add('alert');
+            }
+        })
+
+        setInterval(() => {
+            JSON.parse(localStorage.getItem('items') ? localStorage.getItem('items') : '[]').forEach((item) => {
+                console.log(item.time)
+                alarming(item.time);
+            })
+        }, 1000)
+
+        function pushUp(i)
+{
+          var store;
+          if(i-1>-1)
+          {
+                    store = arry[i-1];
+                    arry[i-1]=arry[i];
+                    arry[i]=store;
+
+                    localStorage.setItem('items',JSON.stringify(arry));
+                    ul.innerHTML="";
+                    arry.forEach ((item,index) => {
+                              listMaker(item,index);
+                    });
+          }
+          else{
+          }
+}
+function pushDown(i)
+{
+          var store;
+          if(i+1<arry.length)
+          {
+                    store = arry[i+1];
+                    arry[i+1]=arry[i];
+                    arry[i]=store;
+
+                    localStorage.setItem('items',JSON.stringify(arry));
+                    ul.innerHTML="";
+                    arry.forEach ((item,index) => {
+                              listMaker(item,index);
+                    });
+          }
+          else{
+          }
+}
+
+    </script>
+</body>
+
+</html>
